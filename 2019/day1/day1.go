@@ -30,5 +30,9 @@ func main() {
 }
 
 func getFuelAmount(mass int) int {
-	return (mass / 3) - 2
+	fuelRequired := (mass / 3) - 2
+	if fuelRequired < 0 {
+		return 0
+	}
+	return fuelRequired + getFuelAmount(fuelRequired)
 }
