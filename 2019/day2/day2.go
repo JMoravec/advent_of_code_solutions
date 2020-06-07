@@ -31,10 +31,24 @@ func main() {
 	}
 	err = scanner.Err()
 	check(err)
-	mainProgram[1] = 12
-	mainProgram[2] = 2
-	runProgram(mainProgram)
-	fmt.Println(mainProgram[0])
+	exit := false
+	for noun := 0; noun < 100; noun++ {
+		for verb := 0; verb < 100; verb++ {
+			copyProgram := make([]int, len(mainProgram))
+			copy(copyProgram, mainProgram)
+			copyProgram[1] = noun
+			copyProgram[2] = verb
+			runProgram(copyProgram)
+			if copyProgram[0] == 19690720 {
+				exit = true
+				fmt.Println(100*noun + verb)
+				break
+			}
+		}
+		if exit {
+			break
+		}
+	}
 }
 
 func add(program []int, currentLocation *int) {
