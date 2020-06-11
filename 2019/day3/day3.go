@@ -41,9 +41,8 @@ func getDistance(line1 []string, line2 []string) int {
 	touchedPoints := getTouchedPoints(line1Points, line2Points)
 	smallestDistance := 99999999999
 	for _, point := range touchedPoints {
-		distance := point.getManhatanDistance()
-		if distance < smallestDistance {
-			smallestDistance = distance
+		if point.steps < smallestDistance {
+			smallestDistance = point.steps
 		}
 	}
 	return smallestDistance
@@ -54,7 +53,8 @@ func getTouchedPoints(line1 []Point, line2 []Point) []Point {
 	for _, line1Point := range line1 {
 		for _, line2Point := range line2 {
 			if line1Point.equal(&line2Point) {
-				touchedPoints = append(touchedPoints, line1Point)
+				newPoint := Point{x: line1Point.x, y: line1Point.y, steps: (line1Point.steps + line2Point.steps)}
+				touchedPoints = append(touchedPoints, newPoint)
 			}
 		}
 	}
@@ -79,33 +79,35 @@ func (p1 *Point) equal(p2 *Point) bool {
 
 func generatePoints(line []string) []Point {
 	var points []Point
-	currentPoint := Point{x: 0, y: 0}
+	currentStep := 0
+	currentPoint := Point{x: 0, y: 0, steps: currentStep}
 	for _, segment := range line {
-		points = append(points, segmentToPoints(&currentPoint, segment)...)
+		points = append(points, segmentToPoints(&currentPoint, segment, &currentStep)...)
 		currentPoint = points[len(points)-1]
 	}
 	return points
 }
 
-func segmentToPoints(startPoint *Point, segment string) []Point {
+func segmentToPoints(startPoint *Point, segment string, currentStep *int) []Point {
 	var points []Point
 	direction := string(segment[0])
 	length, err := strconv.Atoi(segment[1:])
 	check(err)
 
 	for i := 1; i <= length; i++ {
+		(*currentStep)++
 		switch direction {
 		case "U":
-			newPoint := Point{x: startPoint.x, y: (startPoint.y + i)}
+			newPoint := Point{x: startPoint.x, y: (startPoint.y + i), steps: *currentStep}
 			points = append(points, newPoint)
 		case "D":
-			newPoint := Point{x: startPoint.x, y: (startPoint.y - i)}
+			newPoint := Point{x: startPoint.x, y: (startPoint.y - i), steps: *currentStep}
 			points = append(points, newPoint)
 		case "R":
-			newPoint := Point{x: (startPoint.x + i), y: startPoint.y}
+			newPoint := Point{x: (startPoint.x + i), y: startPoint.y, steps: *currentStep}
 			points = append(points, newPoint)
 		case "L":
-			newPoint := Point{x: (startPoint.x - i), y: startPoint.y}
+			newPoint := Point{x: (startPoint.x - i), y: startPoint.y, steps: *currentStep}
 			points = append(points, newPoint)
 		}
 	}
@@ -114,6 +116,7 @@ func segmentToPoints(startPoint *Point, segment string) []Point {
 }
 
 type Point struct {
-	x int
-	y int
+	x     int
+	y     int
+	steps int
 }
