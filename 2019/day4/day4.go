@@ -31,12 +31,21 @@ func isSixDigits(input string) bool {
 
 func hasTwoAdjacent(input string) bool {
 	testLetter := input[0]
+	currentSeen := 1
 	for i := 1; i < len(input); i++ {
 		letter := input[i]
 		if testLetter == letter {
-			return true
+			currentSeen++
+		} else {
+			if currentSeen == 2 {
+				return true
+			}
+			currentSeen = 1
+			testLetter = letter
 		}
-		testLetter = letter
+	}
+	if currentSeen == 2 {
+		return true
 	}
 	return false
 }

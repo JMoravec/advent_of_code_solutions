@@ -12,9 +12,12 @@ func TestGetDistance(t *testing.T) {
 		input    string
 		expected bool
 	}{
-		{"111111", true},
+		{"111111", false},
+		{"112233", true},
 		{"223450", false},
 		{"123789", false},
+		{"123444", false},
+		{"111122", true},
 		{"555", false},
 	}
 
