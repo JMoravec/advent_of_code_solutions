@@ -25,7 +25,7 @@ func main() {
 	}
 	err = scanner.Err()
 	check(err)
-	fmt.Println(getTotalOrbits(orbits))
+	fmt.Println(getOrbitTransfer(orbits))
 }
 
 type Orbit struct {
@@ -62,14 +62,50 @@ func getTotalOrbits(orbits []string) int {
 
 	total := 0
 	for _, orbit := range allOrbits {
-		total += orbit.getNumberOfOrbits(allOrbits)
+		total += orbit.getNumberOfOrbits(allOrbits, "COM")
 	}
 	return total
 }
 
-func (o *Orbit) getNumberOfOrbits(allOrbits map[string]*Orbit) int {
-	if o.numberOfOrbits != 0 || o.name == "COM" {
+func getOrbitTransfer(orbits []string) int {
+	allOrbits := make(map[string]*Orbit)
+	comOrbit := Orbit{name: "COM", orbits: nil, numberOfOrbits: 0}
+	allOrbits["COM"] = &comOrbit
+	for _, orbit := range orbits {
+		convertedOrbit := convertStrToOrbit(orbit)
+		allOrbits[convertedOrbit.name] = &convertedOrbit
+	}
+	setOrbits(allOrbits)
+
+	commonOrbit := getCommonOrbit(allOrbits["YOU"], allOrbits["SAN"], allOrbits)
+	numberOfOrbitsFirstToCommon := allOrbits["YOU"].getNumberOfOrbits(allOrbits, commonOrbit.name)
+	numberOfOrbitsCommonToSan := allOrbits["SAN"].getNumberOfOrbits(allOrbits, commonOrbit.name)
+	return numberOfOrbitsCommonToSan + numberOfOrbitsFirstToCommon - 2
+}
+
+func getCommonOrbit(firstOrbit *Orbit, secondOrbit *Orbit, allOrbits map[string]*Orbit) *Orbit {
+	firstOrbitAllOrbits := getAllOrbits(firstOrbit, allOrbits)
+	secondOrbitAllOrbits := getAllOrbits(secondOrbit, allOrbits)
+	for _, orbit := range firstOrbitAllOrbits {
+		for _, testOrbit := range secondOrbitAllOrbits {
+			if orbit == testOrbit {
+				return allOrbits[orbit]
+			}
+		}
+	}
+	return allOrbits["COM"]
+}
+
+func getAllOrbits(mainOrbit *Orbit, allOrbits map[string]*Orbit) []string {
+	if mainOrbit.name == "COM" {
+		return make([]string, 0)
+	}
+	return append([]string{mainOrbit.orbitsStr}, getAllOrbits(mainOrbit.orbits, allOrbits)...)
+}
+
+func (o *Orbit) getNumberOfOrbits(allOrbits map[string]*Orbit, endOrbit string) int {
+	if o.numberOfOrbits != 0 || o.name == endOrbit {
 		return o.numberOfOrbits
 	}
-	return 1 + allOrbits[o.name].orbits.getNumberOfOrbits(allOrbits)
+	return 1 + allOrbits[o.name].orbits.getNumberOfOrbits(allOrbits, endOrbit)
 }
