@@ -35,7 +35,35 @@ func main() {
 			leastZeros = totalDigits
 		}
 	}
-	fmt.Println(leastZeros.ones * leastZeros.twos)
+
+	finalImage := getDecodedImage(layeredImage)
+	for _, val := range finalImage {
+		fmt.Println(val)
+	}
+}
+
+func getDecodedImage(image [][][]int) [][]int {
+	decodedImage := make([][]int, len(image[0]))
+	for i := range decodedImage {
+		decodedImage[i] = make([]int, len(image[0][0]))
+	}
+
+	for pixel_y, val := range decodedImage {
+		for pixel_x := range val {
+			decodedImage[pixel_y][pixel_x] = getColorPixel(image, pixel_x, pixel_y)
+		}
+	}
+
+	return decodedImage
+}
+
+func getColorPixel(image [][][]int, pixel_x int, pixel_y int) int {
+	for _, layer := range image {
+		if layer[pixel_y][pixel_x] == 0 || layer[pixel_y][pixel_x] == 1 {
+			return layer[pixel_y][pixel_x]
+		}
+	}
+	return 1
 }
 
 type numDigits struct {
