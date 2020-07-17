@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 func check(e error) {
@@ -31,7 +33,7 @@ func main() {
 	}
 	err = scanner.Err()
 	check(err)
-	fmt.Println(getMaxThruster(mainProgram))
+	fmt.Println(getMaxThruster(mainProgram, []int{5, 6, 7, 8, 9}, true))
 }
 
 type ParamMode int
@@ -151,6 +153,11 @@ func compareTo(program []int, currentLocation *int, opcode Opcode, lessThan bool
 
 }
 
+func runProgramParallel(program []int, inputMethod func() int, outputMethod func(int), waitG *sync.WaitGroup) {
+	defer waitG.Done()
+	runProgram(program, inputMethod, outputMethod)
+}
+
 func runProgram(program []int, inputMethod func() int, outputMethod func(int)) {
 	currentLocation := 0
 	exit := false
@@ -186,11 +193,11 @@ func runProgram(program []int, inputMethod func() int, outputMethod func(int)) {
 	}
 }
 
-func getMaxThruster(program []int) int {
-	allInputs := getAllPermutations([]int{0, 1, 2, 3, 4})
+func getMaxThruster(program []int, permutations []int, feedback bool) int {
+	allInputs := getAllPermutations(permutations)
 	output := 0
 	for _, input := range allInputs {
-		testOutput := runMaxThrusterProgram(program, input)
+		testOutput := runMaxThrusterProgram(program, input, feedback)
 		if testOutput > output {
 			output = testOutput
 		}
@@ -198,33 +205,74 @@ func getMaxThruster(program []int) int {
 	return output
 }
 
-func runMaxThrusterProgram(program []int, input []int) int {
-	currentPhaseIndex := 0
-	var currentOutput *int
-	returnPhase := true
+func runMaxThrusterProgram(program []int, input []int, feedback bool) int {
+	/*
+		Run one progam with phase input[0], then 0 input
+		Start program 2 with phase input[1]
+		Start program 3 with phase input [2]
+		Start program 4 with phase input [3]
+		Start program 5 with phase input [4]
 
-	currentOutput = new(int)
-	*currentOutput = 0
+		Program 1 output -> Program 2 Input
+		Program 2 output -> Program 3 Input
+		Program 3 output -> Program 4 Input
+		Program 4 output -> Program 5 Input
+		Program 5 output -> Program 1 Input
 
-	inputFunc := func() int {
-		var result int
-		if returnPhase {
-			result = input[currentPhaseIndex]
-		} else {
-			result = *currentOutput
+		End -> Program 5 output
+	*/
+	returnPhase := make([]bool, len(input))
+	all_programs := make([][]int, len(input))
+	channels := make([]chan int, len(input))
+	nextInput := 0
+
+	inputFuncMain := func(index int) func() int {
+		return func() int {
+			if returnPhase[index] {
+				returnPhase[index] = false
+				return input[index]
+			} else if feedback {
+				return <-channels[index]
+			}
+			return nextInput
 		}
-		returnPhase = !returnPhase
-		return result
 	}
-	outputFunc := func(result int) {
-		*currentOutput = result
+
+	outputFuncMain := func(index int) func(int) {
+		return func(result int) {
+			if index == len(input)-1 {
+				index = -1
+			}
+			if feedback {
+				channels[index+1] <- result
+			} else {
+				nextInput = result
+			}
+		}
 	}
 
 	for i := range input {
-		currentPhaseIndex = i
-		runProgram(program, inputFunc, outputFunc)
+		all_programs[i] = make([]int, len(program))
+		copy(all_programs[i], program)
+		channels[i] = make(chan int)
+		returnPhase[i] = true
 	}
-	return *currentOutput
+
+	for i := range input {
+		if feedback {
+			go runProgram(all_programs[i], inputFuncMain(i), outputFuncMain(i))
+		} else {
+			runProgram(all_programs[i], inputFuncMain(i), outputFuncMain(i))
+		}
+	}
+	if feedback {
+		channels[0] <- 0
+		time.Sleep(10 * time.Millisecond)
+		return <-channels[0]
+	}
+
+	return nextInput
+
 }
 
 func getAllPermutations(array []int) [][]int {
