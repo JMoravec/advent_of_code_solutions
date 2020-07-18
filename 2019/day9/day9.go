@@ -32,7 +32,7 @@ func main() {
 	err = scanner.Err()
 	check(err)
 	inputFunc := func() int {
-		return 1
+		return 2
 	}
 
 	outputFunc := func(value int) {
