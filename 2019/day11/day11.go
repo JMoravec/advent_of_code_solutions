@@ -108,20 +108,36 @@ func (allPoints pointArray) contains(testPoint point) bool {
 	return false
 }
 
+func printPanel(panel [][]int) {
+	for i := len(panel) - 1; i >= 0; i-- {
+		row := panel[i]
+		for _, value := range row {
+			if value == 0 {
+				fmt.Printf(".")
+			} else {
+				fmt.Printf("#")
+			}
+		}
+		fmt.Printf("\n")
+	}
+}
+
 func main() {
-	panel := make([][]int, 200)
+	panel := make([][]int, 10)
 	for i := range panel {
-		panel[i] = make([]int, 200)
+		panel[i] = make([]int, 70)
 	}
 
-	currentLocation := point{100, 100}
+	currentLocation := point{10, 6}
+
+	panel[currentLocation.y][currentLocation.x] = 1
 
 	paintedPoints := make(pointArray, 0)
 
 	mainProgram := getProgram("day11_input.txt")
 
 	inputFunc := func() int {
-		return panel[currentLocation.x][currentLocation.y]
+		return panel[currentLocation.y][currentLocation.x]
 	}
 
 	paintOutput := true
@@ -129,7 +145,7 @@ func main() {
 
 	outputFunc := func(value int) {
 		if paintOutput {
-			panel[currentLocation.x][currentLocation.y] = value
+			panel[currentLocation.y][currentLocation.x] = value
 			if !paintedPoints.contains(currentLocation) {
 				paintedPoints = append(paintedPoints, currentLocation)
 			}
@@ -145,6 +161,7 @@ func main() {
 	}
 	runProgram(mainProgram, inputFunc, outputFunc)
 	fmt.Println(len(paintedPoints))
+	printPanel(panel)
 }
 
 // ParamMode is a helper type to determine where the program should get the operand or set the result
