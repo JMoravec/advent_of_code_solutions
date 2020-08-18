@@ -77,3 +77,32 @@ func TestGetStation(t *testing.T) {
 		})
 	}
 }
+
+func TestShootAsteroids(t *testing.T) {
+	var tests = []struct {
+		shotNumber       int
+		expectedAsteroid Asteroid
+	}{
+		{0, Asteroid{11, 12}},
+		{1, Asteroid{12, 1}},
+		{2, Asteroid{12, 2}},
+		{9, Asteroid{12, 8}},
+		{19, Asteroid{16, 0}},
+		{49, Asteroid{16, 9}},
+		{99, Asteroid{10, 16}},
+		{199, Asteroid{8, 2}},
+		{200, Asteroid{10, 9}},
+		{298, Asteroid{11, 1}},
+	}
+	asteroidInput := ".#..##.###...#######\n##.############..##.\n.#.######.########.#\n.###.#######.####.#.\n#####.##.#.##.###.##\n..#####..#.#########\n####################\n#.####....###.#.#.##\n##.#################\n#####.##.###..####..\n..######..##.#######\n####.##.####...##..#\n.#####..#.######.###\n##...#.##########...\n#.##########.#######\n.####.#.###.###.#.##\n....##.##.###..#####\n.#.#.###########.###\n#.#.#.#####.####.###\n###.##.####.##.#..##"
+	locations := getAsteroids(strings.Split(asteroidInput, "\n"))
+	station := Asteroid{11, 13}
+	shotAsteroids := shootAsteroids(locations, station)
+	for _, test := range tests {
+		assert.Equal(t, 299, len(shotAsteroids))
+		testname := fmt.Sprintf("%d,%v", test.shotNumber, test.expectedAsteroid)
+		t.Run(testname, func(t *testing.T) {
+			assert.Equal(t, test.expectedAsteroid, shotAsteroids[test.shotNumber])
+		})
+	}
+}
