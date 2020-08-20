@@ -48,6 +48,10 @@ func (moon *Moon) applyVelocity() {
 	moon.z += moon.velZ
 }
 
+func (moon *Moon) copy() Moon {
+	return Moon{moon.x, moon.y, moon.z, moon.velX, moon.velY, moon.velZ}
+}
+
 func applyGravityToVelocity(firstValue int, secondValue int, firstVelocity *int, secondVelocity *int) {
 	if firstValue < secondValue {
 		(*firstVelocity)++
@@ -71,6 +75,73 @@ func timeStep(moons []Moon) ([]Moon, error) {
 		moons[i].applyVelocity()
 	}
 	return moons, nil
+}
+
+func runSimulationUntilRepeat(moons []Moon) int {
+	moonInitialState := make([]Moon, len(moons))
+	for i, moon := range moons {
+		moonInitialState[i] = moon.copy()
+	}
+	xRepeatSteps, yRepeatSteps, zRepeatSteps := 0, 0, 0
+
+	for i := 1; xRepeatSteps == 0 || yRepeatSteps == 0 || zRepeatSteps == 0; i++ {
+		var err error
+		moons, err = timeStep(moons)
+		check(err)
+		if xRepeatSteps == 0 && checkXState(moons, moonInitialState) {
+			xRepeatSteps = i
+		}
+		if yRepeatSteps == 0 && checkYState(moons, moonInitialState) {
+			yRepeatSteps = i
+		}
+		if zRepeatSteps == 0 && checkZState(moons, moonInitialState) {
+			zRepeatSteps = i
+		}
+	}
+
+	return lcm(lcm(xRepeatSteps, yRepeatSteps), zRepeatSteps)
+}
+
+func lcm(x, y int) int {
+	return abs(x*y) / gcd(x, y)
+}
+
+func gcd(x, y int) int {
+	for y != 0 {
+		x, y = y, x%y
+	}
+	return x
+}
+
+func checkXState(moons []Moon, initialState []Moon) bool {
+	sameState := true
+	for i := range moons {
+		if moons[i].x != initialState[i].x || moons[i].velX != initialState[i].velX {
+			sameState = false
+			break
+		}
+	}
+	return sameState
+}
+func checkYState(moons []Moon, initialState []Moon) bool {
+	sameState := true
+	for i := range moons {
+		if moons[i].y != initialState[i].y || moons[i].velY != initialState[i].velY {
+			sameState = false
+			break
+		}
+	}
+	return sameState
+}
+func checkZState(moons []Moon, initialState []Moon) bool {
+	sameState := true
+	for i := range moons {
+		if moons[i].z != initialState[i].z || moons[i].velZ != initialState[i].velZ {
+			sameState = false
+			break
+		}
+	}
+	return sameState
 }
 
 func runSimulation(moons []Moon, numberOfSteps int) ([]Moon, int) {
@@ -113,5 +184,7 @@ func main() {
 		moonSet[i] = textToMoon(textInput[i])
 	}
 	_, totalEnergy := runSimulation(moonSet, 1000)
+	stepsToRepeat := runSimulationUntilRepeat(moonSet)
 	fmt.Println(totalEnergy)
+	fmt.Println(stepsToRepeat)
 }

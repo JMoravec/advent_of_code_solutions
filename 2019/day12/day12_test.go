@@ -98,3 +98,20 @@ func TestTotalEnergy(t *testing.T) {
 		})
 	}
 }
+
+func TestRepeatSteps(t *testing.T) {
+	var tests = []struct {
+		moonSet       []Moon
+		expectedSteps int
+	}{
+		{[]Moon{Moon{-1, 0, 2, 0, 0, 0}, Moon{2, -10, -7, 0, 0, 0}, Moon{4, -8, 8, 0, 0, 0}, Moon{3, 5, -1, 0, 0, 0}}, 2772},
+		{[]Moon{Moon{-8, -10, 0, 0, 0, 0}, Moon{5, 5, 10, 0, 0, 0}, Moon{2, -7, 3, 0, 0, 0}, Moon{9, -8, -3, 0, 0, 0}}, 4686774924},
+	}
+	for _, test := range tests {
+		testname := fmt.Sprintf("%v,%d", test.moonSet, test.expectedSteps)
+		t.Run(testname, func(t *testing.T) {
+			totalSteps := runSimulationUntilRepeat(test.moonSet)
+			assert.Equal(t, test.expectedSteps, totalSteps)
+		})
+	}
+}
