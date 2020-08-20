@@ -117,14 +117,26 @@ func main() {
 	xPos := 0
 	yPos := 0
 
+	currentBallLocation := 0
+	currentBlockLocation := 0
+
 	inputFunc := func() int {
+		printScreen(screen)
+		/* Uncomment for user input
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter text: ")
 		text, inputErr := reader.ReadString('\n')
 		check(inputErr)
-		inputInt, intErr := strconv.Atoi(text)
+		inputInt, intErr := strconv.Atoi(strings.Trim(text, "\n"))
 		check(intErr)
 		return inputInt
+		*/
+		if currentBlockLocation > currentBallLocation {
+			return -1
+		} else if currentBlockLocation < currentBallLocation {
+			return 1
+		}
+		return 0
 	}
 
 	outputFunc := func(value int) {
@@ -136,10 +148,20 @@ func main() {
 			yPos = value
 		} else {
 			currentOut = X
-			screen[yPos][xPos] = intTotileID(value)
+			if xPos == -1 && yPos == 0 {
+				fmt.Println("Score: ", value)
+			} else {
+				currentTile := intTotileID(value)
+				if currentTile == BALL {
+					currentBallLocation = xPos
+				} else if currentTile == HORIZONTAL_PADDLE {
+					currentBlockLocation = xPos
+				}
+				screen[yPos][xPos] = currentTile
+			}
 		}
 	}
+	mainProgram[0] = 2
 	intcode.RunProgram(mainProgram, inputFunc, outputFunc)
-	printScreen(screen)
 	fmt.Println("Total Blocks: ", getTotalBlocks(screen))
 }
