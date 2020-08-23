@@ -30,6 +30,30 @@ func main() {
 	reactions := createReactionHash(textInput)
 	actualOreNeeded := calculateAmountOfOre(1, reactions)
 	fmt.Println(actualOreNeeded)
+
+	fmt.Println(calculateTotalFuelForOreAmount(1000000000000, reactions))
+}
+
+func calculateTotalFuelForOreAmount(amountofOre int, reactions ReactionHash) int {
+
+	storage := make(map[Chemical]int)
+	const STOCK = 100000
+	var fuel, lastStock int
+
+	for oreConsumed := 0; oreConsumed < amountofOre; fuel++ {
+		lastStock = amountofOre - oreConsumed
+		order := OrderAmount{STOCK, "FUEL"}
+		oreConsumed += order.processOrder(reactions, storage)
+	}
+	//We producet fuel times STOCK unit of fuel
+	fuel = (fuel - 1) * STOCK
+	//Now we produce the last units of fuel one by one
+	for oreConsumed := 0; oreConsumed < lastStock; fuel++ {
+		order := OrderAmount{1, "FUEL"}
+		oreConsumed += order.processOrder(reactions, storage)
+	}
+
+	return fuel - 1
 }
 
 func stringToReaction(input string) Reaction {
@@ -120,12 +144,9 @@ func createReactionHash(textReactions []string) ReactionHash {
 }
 
 func calculateAmountOfOre(amount int, reactions ReactionHash) int {
-	oreNeeded := 0
-	queue := make([]OrderAmount, 1)
-	queue[0] = OrderAmount{amount, "FUEL"}
+	order := OrderAmount{amount, "FUEL"}
 	storage := make(map[Chemical]int)
-	oreNeeded = queue[0].processOrder(reactions, storage)
-	return oreNeeded
+	return order.processOrder(reactions, storage)
 }
 
 type Chemical string
