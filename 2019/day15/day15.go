@@ -158,13 +158,25 @@ func max(a int, b int) int {
 	return b
 }
 
-func maxDepth(graph *map[Point][]Point, pointToStart *Point) int {
-	deepest := 0
-	for _, point := range (*graph)[*pointToStart] {
-		deepest = max(deepest, maxDepth(graph, &point))
+func dfs(graph *map[Point][]Point, point *Point, visted *map[Point]bool) int {
+	if len((*graph)[*point]) == 0 {
+		return 1
 	}
-	return deepest + 1
+	maxTotal := 1
+	for _, pointToCheck := range (*graph)[*point] {
+		if alreadyVisted, ok := (*visted)[pointToCheck]; !ok || !alreadyVisted {
+			(*visted)[pointToCheck] = true
+			total := 1 + dfs(graph, &pointToCheck, visted)
+			maxTotal = max(maxTotal, total)
+		}
+	}
+	return maxTotal
+}
 
+func maxDepth(graph *map[Point][]Point, pointToStart *Point) {
+	visited := make(map[Point]bool, 0)
+	visited[*pointToStart] = true
+	fmt.Println(dfs(graph, pointToStart, &visited) - 1)
 }
 
 func main() {
@@ -198,7 +210,7 @@ func main() {
 	pathToOrigin := make([]Point, 0)
 	pointGraph := make(map[Point][]Point)
 	movingBack := false
-	//var oxygenPosition Point
+	var oxygenPosition Point
 
 	inputFunc := func() int {
 		for {
@@ -220,7 +232,7 @@ func main() {
 				return int(*directionToMove)
 			}
 			// Map is complete
-			//fmt.Println(maxDepth())
+			maxDepth(&pointGraph, &oxygenPosition)
 			//bfs(&pointGraph)
 			panic(1)
 		}
@@ -247,11 +259,12 @@ func main() {
 			potentialMovePosition.generateQueuePoints(&queueToVisit, visitedPoints)
 
 			droidPosition.copyFrom(&potentialMovePosition)
+			oxygenPosition.copyFrom(&droidPosition)
 			fmt.Println("Found OXYGEN at ", droidPosition)
 			fmt.Println(len(pathToOrigin))
 			fmt.Println("")
 		}
-		printMap(droidMap, droidPosition, maxX, maxY, minX, minY)
+		//printMap(droidMap, droidPosition, maxX, maxY, minX, minY)
 	}
 	intcode.RunProgram(mainProgram, inputFunc, outputFunc)
 }
@@ -274,6 +287,15 @@ func addToGraph(graph *map[Point][]Point, p *Point, connectionPoint *Point) {
 	} else {
 		if !connectionInConnections((*graph)[*p], connectionPoint) {
 			(*graph)[*p] = append((*graph)[*p], *connectionPoint)
+		}
+	}
+
+	if _, ok := (*graph)[*connectionPoint]; !ok {
+		(*graph)[*connectionPoint] = make([]Point, 1)
+		(*graph)[*connectionPoint][0] = *p
+	} else {
+		if !connectionInConnections((*graph)[*connectionPoint], p) {
+			(*graph)[*connectionPoint] = append((*graph)[*connectionPoint], *p)
 		}
 	}
 }
