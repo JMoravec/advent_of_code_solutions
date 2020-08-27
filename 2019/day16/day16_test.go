@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -56,14 +57,32 @@ func TestPhase(t *testing.T) {
 		{"12345678", 2, "34040438"},
 		{"12345678", 3, "03415518"},
 		{"12345678", 4, "01029498"},
-		//{"80871224585914546619083218645595", 100, "24176176"},
-		//{"19617804207202209144916044189917", 100, "73745418"},
-		//{"69317163492948606335995924319873", 100, "52432133"},
+		{"80871224585914546619083218645595", 100, "24176176"},
+		{"19617804207202209144916044189917", 100, "73745418"},
+		{"69317163492948606335995924319873", 100, "52432133"},
 	}
 	for _, test := range tests {
 		testname := fmt.Sprintf("%s,%d:%s", test.inputValue, test.phases, test.expected)
 		t.Run(testname, func(t *testing.T) {
-			assert.Equal(t, test.expected, calculatePhase(test.inputValue, test.phases))
+			assert.Equal(t, test.expected, calculatePhase(test.inputValue, test.phases)[0:8])
+		})
+	}
+}
+
+func TestRunAlot(t *testing.T) {
+	var tests = []struct {
+		inputValue string
+		expected   string
+	}{
+		{"03036732577212944063491565474664", "84462026"},
+		{"02935109699940807407585447034323", "78725270"},
+		{"03081770884921959731165446850517", "53553731"},
+	}
+	for _, test := range tests {
+		offset, _ := strconv.Atoi(test.inputValue[0:7])
+		testname := fmt.Sprintf("%s:%s", test.inputValue, test.expected)
+		t.Run(testname, func(t *testing.T) {
+			assert.Equal(t, test.expected, intArrayToStr(runAlot(test.inputValue, offset)[0:8]))
 		})
 	}
 }

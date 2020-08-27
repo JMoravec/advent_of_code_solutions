@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func check(e error) {
@@ -24,15 +25,43 @@ func main() {
 	}
 	err = scanner.Err()
 	check(err)
-	fmt.Println(calculatePhase(textInput[0], 100)[0:8])
+	inputValue := textInput[0]
+	offset, err := strconv.Atoi(inputValue[0:7])
+	check(err)
+	finalValue := runAlot(inputValue, offset)
+	fmt.Println(finalValue[0:8])
 }
 
-func getDigitsForInt(number int) int {
-	if number < 10 {
-		return 1
-	} else {
-		return 1 + getDigitsForInt(number/10)
+func strToIntArray(inputValue string) []int {
+	output := make([]int, len(inputValue))
+	var err error
+	for i, char := range inputValue {
+		output[i], err = strconv.Atoi(string(char))
+		check(err)
 	}
+	return output
+}
+
+func intArrayToStr(input []int) string {
+	output := ""
+	for _, value := range input {
+		output += strconv.Itoa(value)
+	}
+	return output
+}
+
+func runAlot(inputValue string, offset int) []int {
+	outputValue := strings.Repeat(inputValue, 10000)[offset:]
+	inputIntArray := strToIntArray(outputValue)
+
+	for i := 0; i < 100; i++ {
+		currentTotal := 0
+		for j := len(outputValue) - 1; j >= 0; j-- {
+			currentTotal += inputIntArray[j]
+			inputIntArray[j] = currentTotal % 10
+		}
+	}
+	return inputIntArray
 }
 
 func stringToDigitSlice(inputValue string) []int {
