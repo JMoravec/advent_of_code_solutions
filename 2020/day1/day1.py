@@ -1,41 +1,53 @@
 """
 Day 1 of 2020 Advent of Code
 """
-from typing import List, Tuple
+from typing import List
 import itertools
 
-def check_2020(value_1: int, value_2: int) -> bool:
+def check_2020(values: tuple) -> bool:
     """
-    See if two values add to 2020
-
-    :param value_1: The first value
-    :param value_2: The second value
-    :return: True if adding them equals 2020
+    A generic version of the check_2020 method
     """
-    return value_1 + value_2 == 2020
+    sum_of_all = 0
+    for value in values:
+        sum_of_all += value
+    return sum_of_all == 2020
 
-def get_sums_from_list(values: List[int]) -> Tuple[int, int]:
+def get_sums_from_list(values: List[int], values_to_add: int) -> tuple:
     """
     Get the two numbers from a list that add up to 2020
     """
-    for combo in itertools.combinations(values,2):
-        if check_2020(combo[0], combo[1]):
+    all_combos = itertools.combinations(values, values_to_add)
+    for combo in all_combos:
+        if check_2020(combo):
             return combo
     return 0, 0
 
-def get_day_1_answer(values: str) -> int:
+def get_day_1_answer(values: List[int]) -> int:
     """
     Generate the first day's answer
     """
-    list_of_values = [int(x) for x in values.split('\n')]
-    answer_first, answer_second = get_sums_from_list(list_of_values)
+    answer_first, answer_second = get_sums_from_list(values, 2)
     return answer_first * answer_second
+
+def get_day_2_answer(values: List[int]) -> int:
+    """
+    Generate the first day's answer
+    """
+    answer_first, answer_second, answer_third = get_sums_from_list(values, 3)
+    return answer_first * answer_second * answer_third
+
+def convert_input_str_to_int(input_values: str) -> List[int]:
+    return [int(x) for x in input_values.split('\n')]
 
 
 def main():
     with open('day_1_input.txt') as f:
         values = f.read().strip()
-    print(get_day_1_answer(values))
+    list_of_values = convert_input_str_to_int(values)
+    print('Part 1: ' + str(get_day_1_answer(list_of_values)))
+    print('Part 2: ' + str(get_day_2_answer(list_of_values)))
 
 if __name__ == '__main__':
     main()
+
