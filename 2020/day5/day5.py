@@ -3,6 +3,7 @@ Day 5 of advent of code 2020
 """
 
 from typing import Tuple, List
+import bisect
 
 def _convert_to_binary(input_str: str) -> int:
     """
@@ -61,6 +62,22 @@ def solve_part_1(inputs: List[str]) -> int:
             max_seat_id = new_id
     return max_seat_id
 
+def solve_part_2(inputs: List[str]) -> int:
+    """
+    Solve the problem in part 2
+    """
+    seats = []
+    for test_input in inputs:
+        seat_id =  get_seat_id_from_input(test_input.strip())
+        bisect.insort(seats, seat_id)
+    last_seat = seats[0] - 1
+    for seat in seats:
+        if last_seat + 1 != seat:
+            return last_seat + 1
+        last_seat = seat
+    return 0
+
+
 def main():
     """
     Main method to run the day's input
@@ -68,6 +85,7 @@ def main():
     with open('day5_input.txt') as problem_file:
         all_inputs = problem_file.readlines()
     print(f'Part 1: {solve_part_1(all_inputs)}')
+    print(f'Part 2: {solve_part_2(all_inputs)}')
 
 
 if __name__ == "__main__":
