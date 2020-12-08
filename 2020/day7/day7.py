@@ -70,9 +70,22 @@ def how_many_bags_it_contains(
     return total
 
 
-def solve_part_1(input_text: List[str]) -> int:
+def count_all_bag_containers(
+    all_colors: Dict[str, List[BagAmount]], initial_bag: str
+) -> int:
+    if not all_colors[initial_bag]:
+        return 1
+    total = 1
+    for sub_bag in all_colors[initial_bag]:
+        total += int(sub_bag.amount) * count_all_bag_containers(
+            all_colors, sub_bag.color
+        )
+    return total
+
+
+def generate_all_colors(input_text: List[str]) -> Dict[str, List[BagAmount]]:
     """
-    Solve part 1 of the day's input
+    Generate the full dictionary of colors to amounts
     """
     all_colors: Dict[str, List[BagAmount]] = {}
     for rule in input_text:
@@ -81,7 +94,23 @@ def solve_part_1(input_text: List[str]) -> int:
             all_colors[color] = bags
         else:
             all_colors[color].extend(bags)
+    return all_colors
+
+
+def solve_part_1(input_text: List[str]) -> int:
+    """
+    Solve part 1 of the day's input
+    """
+    all_colors = generate_all_colors(input_text)
     return how_many_bags_it_contains(all_colors, "shiny gold")
+
+
+def solve_part_2(input_text: List[str]) -> int:
+    """
+    Solve part 2 of the day's input
+    """
+    all_colors = generate_all_colors(input_text)
+    return count_all_bag_containers(all_colors, "shiny gold") - 1
 
 
 def main():
@@ -91,7 +120,7 @@ def main():
     with open("day7_input.txt") as problem_file:
         all_inputs = problem_file.readlines()
     print(f"Part 1: {solve_part_1(all_inputs)}")
-    # print(f"Part 2: {solve_part_2(all_inputs)}")
+    print(f"Part 2: {solve_part_2(all_inputs)}")
 
 
 if __name__ == "__main__":
