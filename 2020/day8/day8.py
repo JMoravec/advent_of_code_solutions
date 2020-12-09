@@ -26,13 +26,14 @@ class Computer:
         elif operation == "jmp":
             self.pc += argument
 
-    def run_program(self, debug=False) -> int:
+    def run_program(self, debug=False) -> bool:
         """
-        Run the program of the computer and return the last value of the
-        accumulator
+        Run the program of the computer and returns True if the program
+        terminated correctly
         """
         ran_lines: Set[int] = set()
-        while self.pc not in ran_lines:
+        in_loop = False
+        while self.pc < len(self.program):
             if debug:
                 print(f"ran_pc: {ran_lines}")
                 print(f"pc: {self.pc}")
@@ -41,8 +42,11 @@ class Computer:
                 print()
             ran_lines.add(self.pc)
             self._process_instruction(self.program[self.pc])
+            if self.pc in ran_lines:
+                in_loop = True
+                break
 
-        return self.accumulator
+        return not in_loop
 
 
 def solve_part_1(program: List[str]) -> int:
@@ -50,7 +54,23 @@ def solve_part_1(program: List[str]) -> int:
     Solve part 1 of the day
     """
     new_computer = Computer(program)
-    return new_computer.run_program()
+    new_computer.run_program()
+    return new_computer.accumulator
+
+
+def solve_part_2(program: List[str]) -> int:
+    for i, instruction in enumerate(program):
+        new_program = program.copy()
+        if "nop" in instruction:
+            new_program[i] = instruction.replace("nop", "jmp")
+        elif "jmp" in instruction:
+            new_program[i] = instruction.replace("jmp", "nop")
+        else:
+            continue
+        computer = Computer(new_program)
+        if computer.run_program():
+            return computer.accumulator
+    return -1
 
 
 def main():
@@ -60,7 +80,7 @@ def main():
     with open("day8_input.txt") as problem_file:
         all_inputs = problem_file.readlines()
     print(f"Part 1: {solve_part_1(all_inputs)}")
-    # print(f"Part 2: {solve_part_2(all_inputs)}")
+    print(f"Part 2: {solve_part_2(all_inputs)}")
 
 
 if __name__ == "__main__":
