@@ -1,0 +1,41 @@
+"""
+Test module for day 8 2020
+"""
+from typing import List
+import pytest
+from day9.day9 import solve_part_1
+
+
+@pytest.mark.parametrize(
+    "preamble_length,inputs,expected",
+    [
+        (
+            5,
+            [
+                35,
+                20,
+                15,
+                25,
+                47,
+                40,
+                62,
+                55,
+                65,
+                95,
+                102,
+                117,
+                150,
+                182,
+                127,
+                219,
+                299,
+                277,
+                309,
+                576,
+            ],
+            127,
+        )
+    ],
+)
+def test_solve_part_1(preamble_length: int, inputs: List[int], expected: int):
+    assert solve_part_1(preamble_length, inputs) == expected
