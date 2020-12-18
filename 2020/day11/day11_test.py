@@ -1,6 +1,7 @@
 """
 Test module for day 11 2020
 """
+from typing import Tuple
 import pytest
 from day11.day11 import (
     run_simulation,
@@ -8,6 +9,7 @@ from day11.day11 import (
     get_output,
     run_n_rounds_of_simulation,
     solve_part_1,
+    solve_part_2,
 )
 
 
@@ -90,3 +92,72 @@ def test_n_run_simulation(input_str: str, rounds: int, expected: str):
 )
 def test_part_1(input_str: str, expected: int):
     assert solve_part_1(input_str.split("\n")) == expected
+
+
+@pytest.mark.parametrize(
+    "input_str,expected",
+    [
+        (
+            "L.LL.LL.LL\nLLLLLLL.LL\nL.L.L..L..\nLLLL.LL.LL\nL.LL.LL.LL\n"
+            "L.LLLLL.LL\n..L.L.....\nLLLLLLLLLL\nL.LLLLLL.L\nL.LLLLL.LL",
+            26,
+        )
+    ],
+)
+def test_part_2(input_str: str, expected: int):
+    assert solve_part_2(input_str.split("\n")) == expected
+
+
+@pytest.mark.parametrize(
+    "input_str,test_chair,expected_seen",
+    [
+        (
+            ".......#.\n...#.....\n.#.......\n.........\n..#L....#\n....#....\n.........\n#........\n...#.....",
+            (4, 3),
+            8,
+        ),
+        (".............\n.L.L.#.#.#.#.\n.............", (1, 1), 1),
+        (".##.##.\n#.#.#.#\n##...##\n...L...\n##...##\n#.#.#.#\n.##.##.", (3, 3), 0),
+    ],
+)
+def test_chairs_seen(input_str: str, test_chair: Tuple[int, int], expected_seen: int):
+    input_lines = get_list_from_input(input_str.split("\n"))
+    test_chair_actual = input_lines[test_chair[0]][test_chair[1]]
+    assert len(test_chair_actual.chairs_seen(input_lines)) == expected_seen
+
+
+@pytest.mark.parametrize(
+    "rounds,expected",
+    [
+        (
+            1,
+            "#.##.##.##\n#######.##\n#.#.#..#..\n####.##.##\n#.##.##.##\n#.#####.##\n..#.#.....\n##########\n#.######.#\n#.#####.##",
+        ),
+        (
+            2,
+            "#.LL.LL.L#\n#LLLLLL.LL\nL.L.L..L..\nLLLL.LL.LL\nL.LL.LL.LL\nL.LLLLL.LL\n..L.L.....\nLLLLLLLLL#\n#.LLLLLL.L\n#.LLLLL.L#",
+        ),
+        (
+            3,
+            "#.L#.##.L#\n#L#####.LL\nL.#.#..#..\n##L#.##.##\n#.##.#L.##\n#.#####.#L\n..#.#.....\nLLL####LL#\n#.L#####.L\n#.L####.L#",
+        ),
+        (
+            4,
+            "#.L#.L#.L#\n#LLLLLL.LL\nL.L.L..#..\n##LL.LL.L#\nL.LL.LL.L#\n#.LLLLL.LL\n..L.L.....\nLLLLLLLLL#\n#.LLLLL#.L\n#.L#LL#.L#",
+        ),
+        (
+            5,
+            "#.L#.L#.L#\n#LLLLLL.LL\nL.L.L..#..\n##L#.#L.L#\nL.L#.#L.L#\n#.L####.LL\n..#.#.....\nLLL###LLL#\n#.LLLLL#.L\n#.L#LL#.L#",
+        ),
+        (
+            6,
+            "#.L#.L#.L#\n#LLLLLL.LL\nL.L.L..#..\n##L#.#L.L#\nL.L#.LL.L#\n#.LLLL#.LL\n..#.L.....\nLLL###LLL#\n#.LLLLL#.L\n#.L#LL#.L#",
+        ),
+    ],
+)
+def test_n_run_simulation(rounds: int, expected: str):
+    input_str = "L.LL.LL.LL\nLLLLLLL.LL\nL.L.L..L..\nLLLL.LL.LL\nL.LL.LL.LL\nL.LLLLL.LL\n..L.L.....\nLLLLLLLLLL\nL.LLLLLL.L\nL.LLLLL.LL"
+    input_lines = get_list_from_input(input_str.split("\n"))
+    after_n_run = run_n_rounds_of_simulation(input_lines, rounds, True)
+    output = get_output(after_n_run)
+    assert output == expected
