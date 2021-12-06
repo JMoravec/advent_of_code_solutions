@@ -1,4 +1,5 @@
 use std::fs;
+use std::fmt;
 
 fn main() {
     let data = fs::read_to_string("input.txt").expect("Unable to read file");
@@ -8,19 +9,37 @@ fn main() {
     let callouts: Vec<&str>= data_lines.next().unwrap().split(',').collect();
     let mut boards: Vec<BingoBoard> = Vec::new();
 
-    for line in data_lines {
+    while let Some(_) = data_lines.next() {
         let mut new_board = BingoBoard::new();
 
         for i in 0..5 {
-            let next_line: Vec<i32> = data_lines.next().unwrap().split(' ').map(|x| x.parse().unwrap()).collect();
+            let next_line_split = data_lines.next().unwrap().split_ascii_whitespace();
+            let next_line: Vec<i32> = next_line_split.map(|x| x.parse().unwrap()).collect();
             let mut next_line_array: [i32; 5] = Default::default();
             for j in 0..5 {
                 next_line_array[j] = *next_line.get(j).unwrap();
             }
             new_board.insert_row(next_line_array, i);
         }
-
+        new_board.update_totals();
         boards.push(new_board);
+    }
+
+    for number_to_mark in callouts {
+        let number: i32 = number_to_mark.parse().unwrap();
+        println!("{}", number);
+        for board in boards.iter_mut() {
+            if board.mark_number(number) {
+                println!("Part 1 solution: {}", board.get_current_total() * number);
+                println!("{:?}", board.board);
+                println!("{}", number);
+                println!("{}", board.get_current_total());
+                println!("{:?}", board.length_totals);
+                println!("{:?}", board.vertical_totals);
+                println!("{:?}", board.diagnal_totals);
+                return;
+            }
+        }
     }
 }
 
@@ -33,7 +52,7 @@ struct BingoBoard {
 
 impl BingoBoard {
     fn new() -> Self {
-        BingoBoard{board: vec![vec![0; 5]], length_totals: [0; 5], vertical_totals: [0; 5], diagnal_totals: [0; 2]}
+        BingoBoard{board: vec![vec![0; 5]; 0], length_totals: [0; 5], vertical_totals: [0; 5], diagnal_totals: [0; 2]}
     }
 
     fn insert_row(&mut self, row: [i32; 5], vert_index: usize) {
