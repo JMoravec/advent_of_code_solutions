@@ -10,7 +10,7 @@ from day1.day1 import (
 )
 
 
-@pytest.fixture(name="test_elf")
+@pytest.fixture(name="test_elves")
 def test_elves_fixture() -> List[List[int]]:
     """
     Fixture to get the test elves
