@@ -1,7 +1,7 @@
 """Tests for day9"""
 
 import pytest
-from day9.day9 import Point, Head, Direction, parse_directions
+from day9.day9 import Point, Rope, Direction, parse_directions
 
 
 @pytest.mark.parametrize(
@@ -38,17 +38,19 @@ def test_move_point_to(tail_pos: Point, head_position: Point, expected_tail_pos:
     assert tail_pos.move_to(head_position) == expected_tail_pos
 
 
-def test_positions_visited():
+@pytest.mark.parametrize(
+    "directions,rope_segments,expected_positions",
+    [
+        ("R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2", 1, 13),
+        ("R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2", 9, 1),
+        ("R 5\nU 8\nL 8\nD 3\nR 17\nD 10\nL 25\nU 20", 9, 36),
+    ],
+)
+def test_positions_visited_longer_tail(
+    directions: str, rope_segments: int, expected_positions: int
+):
     """Test the total amount of places visited for the tail"""
-    directions = """R 4
-U 4
-L 3
-D 1
-R 4
-D 1
-L 5
-R 2"""
-    head = Head()
+    head = Rope(rope_segments)
     for instruction in parse_directions(directions):
         head.move(*instruction)
-    assert len(head.tail.points_visited) == 13
+    assert head.get_tail_points_visited() == expected_positions

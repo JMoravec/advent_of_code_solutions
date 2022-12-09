@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 
 class Direction(Enum):
@@ -82,43 +82,46 @@ class Point:
         )
 
 
-class Tail:
-    """Represents the tail of the rope"""
+class Rope:
+    """Represents the head of the rope"""
 
     current_position: Point
+    tail: Optional["Rope"]
     points_visited: Set[Point]
 
-    def __init__(self) -> None:
+    def __init__(self, rope_segmenets_to_create) -> None:
         self.current_position = Point(0, 0)
+        if rope_segmenets_to_create > 0:
+            self.tail = Rope(rope_segmenets_to_create - 1)
+        else:
+            self.tail = None
         self.points_visited = set()
         self.add_point_to_visited()
+
+    def move(self, direction: Direction, how_far: int) -> "Rope":
+        """Move the head in a given direction and distance"""
+        for _ in range(how_far):
+            self.current_position = self.current_position.move(direction)
+            if self.tail:
+                self.tail.move_to(self.current_position)
+        return self
 
     def add_point_to_visited(self):
         """Adds a point to the visited set"""
         self.points_visited.add(self.current_position)
 
-    def move(self, head_position: Point):
+    def move_to(self, head_position: Point):
         """Move the tail to the correct position of the Head"""
         self.current_position = self.current_position.move_to(head_position)
         self.add_point_to_visited()
+        if self.tail:
+            self.tail.move_to(self.current_position)
 
-
-class Head:
-    """Represents the head of the rope"""
-
-    current_position: Point
-    tail: Tail
-
-    def __init__(self, rope_segmenets_to_create: int = 9) -> None:
-        self.current_position = Point(0, 0)
-        self.tail = Tail()
-
-    def move(self, direction: Direction, how_far: int) -> "Head":
-        """Move the head in a given direction and distance"""
-        for _ in range(how_far):
-            self.current_position = self.current_position.move(direction)
-            self.tail.move(self.current_position)
-        return self
+    def get_tail_points_visited(self) -> int:
+        """Get the final tail's points visited"""
+        if not self.tail:
+            return len(self.points_visited)
+        return self.tail.get_tail_points_visited()
 
 
 def parse_directions(input_str: str) -> List[Tuple[Direction, int]]:
@@ -136,12 +139,22 @@ def part_1() -> int:
     """Solve part 1 of day 9"""
     with open("input.txt", "r", encoding="utf-8") as file:
         all_lines = file.read()
-    head = Head()
+    head = Rope(1)
     for instruction in parse_directions(all_lines):
         head.move(*instruction)
-    return len(head.tail.points_visited)
+    return head.get_tail_points_visited()
+
+
+def part_2() -> int:
+    """Solve part 1 of day 9"""
+    with open("input.txt", "r", encoding="utf-8") as file:
+        all_lines = file.read()
+    head = Rope(9)
+    for instruction in parse_directions(all_lines):
+        head.move(*instruction)
+    return head.get_tail_points_visited()
 
 
 if __name__ == "__main__":
     print(f"Part 1: {part_1()}")
-    # print(f"Part 2: {part_2()}")
+    print(f"Part 2: {part_2()}")
