@@ -11,7 +11,7 @@ class Tree:
 
     value: int
     is_visible: bool = False
-    viewing_score = 0
+    viewing_score: int = 0
 
 
 def create_forest(input_str: str) -> List[List[Tree]]:
@@ -67,7 +67,7 @@ def get_left_viewing_distance(
         return 0
     value_to_check = forrest[y_to_check][x_to_check].value
     distance = 0
-    for x in range(x_to_check, -1, -1):
+    for x in range(x_to_check - 1, -1, -1):
         distance += 1
         if forrest[y_to_check][x].value >= value_to_check:
             return distance
@@ -82,7 +82,7 @@ def get_right_viewing_distance(
         return 0
     value_to_check = forrest[y_to_check][x_to_check].value
     distance = 0
-    for x in range(x_to_check, len(forrest[y_to_check])):
+    for x in range(x_to_check + 1, len(forrest[y_to_check])):
         distance += 1
         if forrest[y_to_check][x].value >= value_to_check:
             return distance
@@ -97,7 +97,7 @@ def get_up_viewing_distance(
         return 0
     value_to_check = forrest[y_to_check][x_to_check].value
     distance = 0
-    for y in range(y_to_check, -1, -1):
+    for y in range(y_to_check - 1, -1, -1):
         distance += 1
         if forrest[y][x_to_check].value >= value_to_check:
             return distance
@@ -112,7 +112,7 @@ def get_down_viewing_distance(
         return 0
     value_to_check = forrest[y_to_check][x_to_check].value
     distance = 0
-    for y in range(y_to_check, len(forrest)):
+    for y in range(y_to_check + 1, len(forrest)):
         distance += 1
         if forrest[y][x_to_check].value >= value_to_check:
             return distance
@@ -162,6 +162,16 @@ def get_number_of_visible_trees(forrest: List[List[Tree]]) -> int:
     return total
 
 
+def get_largest_viewing_distance(forrest: List[List[Tree]]) -> int:
+    """Get the larget viewing distance for a forrest"""
+    largest = 0
+    for row in forrest:
+        for tree in row:
+            if tree.viewing_score > largest:
+                largest = tree.viewing_score
+    return largest
+
+
 def part_1() -> int:
     """Solve part 1 of day 8"""
     with open("input.txt", "r", encoding="utf-8") as file:
@@ -171,6 +181,15 @@ def part_1() -> int:
     return get_number_of_visible_trees(forrest)
 
 
+def part_2() -> int:
+    """Solve part 2 of day 8"""
+    with open("input.txt", "r", encoding="utf-8") as file:
+        input_str = file.read()
+    forrest = create_forest(input_str)
+    compute_viewing_distance(forrest)
+    return get_largest_viewing_distance(forrest)
+
+
 if __name__ == "__main__":
     print(f"Part 1: {part_1()}")
-    # print(f"Part 2: {part_2()}")
+    print(f"Part 2: {part_2()}")
