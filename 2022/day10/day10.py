@@ -103,6 +103,7 @@ def part_1() -> int:
 
 
 def part_2() -> str:
+    """Solve part 2 of day 1"""
     with open("input.txt", "r", encoding="utf-8") as file:
         instructions = file.read()
     end_state = run_all_instructions(instructions)
