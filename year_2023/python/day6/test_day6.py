@@ -11,16 +11,6 @@ from year_2023.python.day6.day6 import (
 TEST_INPUT = """Time:      7  15   30
 Distance:  9  40  200"""
 
-# distance = x (time - x)
-# want ->
-# distance < x (time - x)
-# 0 < x (time - x) - distance
-# 0 < -x^2 + x*time - distance
-# for 0 = bla:
-# x = (-time +- sqrt(time^2 - 4*distance))/-2
-# eg.:
-# -7 + sqrt(49 + 36)
-
 
 @pytest.mark.parametrize(
     "time,distance,expected", [(7, 9, 4), (15, 40, 8), (30, 200, 9)]

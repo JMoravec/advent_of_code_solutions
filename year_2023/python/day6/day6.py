@@ -1,21 +1,11 @@
 """Solution for day6 of year 2023"""
 
-# distance = x (time - x)
-# want ->
-# distance < x (time - x)
-# 0 < x (time - x) - distance
-# 0 < -x^2 + x*time - distance
-# for 0 = bla:
-# x = (-time +- sqrt(time^2 - 4*distance))/-2
-# eg.:
-# -7 + sqrt(49 + 36)
-
 import math
 from typing import Tuple
 
 
 def get_limits(time: int, distance: int) -> Tuple[float, float]:
-    """Get the limits where the forumla works"""
+    """Get the limits where the formula works"""
     first = (-time + math.sqrt(time**2 - 4 * distance)) / -2
     second = (-time - math.sqrt(time**2 - 4 * distance)) / -2
     return (min(first, second), max(first, second))
